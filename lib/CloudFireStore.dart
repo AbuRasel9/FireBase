@@ -24,4 +24,9 @@ class CloudStoreHelper{
     return ListOfBook;
   }
 
+  //data update korle auto update hoye jabe screen refresh na korei
+  Stream<QuerySnapshot<Map<String, dynamic>>> ListenAllBookCollection(){
+    return db.collection('Books').snapshots();
+}
+
 }
