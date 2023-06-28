@@ -29,4 +29,8 @@ class CloudStoreHelper{
     return db.collection('Books').snapshots();
 }
 
+  Future<void>addNewBook(Book book)async{
+    await db.collection('Books').add(book.toMap());
+  }
+
 }

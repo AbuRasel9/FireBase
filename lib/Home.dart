@@ -29,6 +29,11 @@ class _HomeState extends State<Home> {
     // });
   }
 
+  TextEditingController nameController = TextEditingController();
+  TextEditingController typeController = TextEditingController();
+  TextEditingController priceController = TextEditingController();
+  TextEditingController dateController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,12 +41,85 @@ class _HomeState extends State<Home> {
         title: const Text("Book List"),
         centerTitle: true,
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          showModalBottomSheet(
+              context: context,
+              builder: (context) {
+                return Padding(
+                  //padding use korle keybord er opor form feild gula uthe jabe
+                  padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom),
+
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        const Text("Add New Book"),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        TextFormField(
+                          controller: nameController,
+                          decoration: const InputDecoration(
+                              hintText: "Name", border: OutlineInputBorder()),
+                        ),
+                        TextFormField(
+                          controller: typeController,
+                          decoration: const InputDecoration(
+                              hintText: "Type", border: OutlineInputBorder()),
+                        ),
+                        TextFormField(
+                          controller: priceController,
+                          decoration: const InputDecoration(
+                              hintText: "Price", border: OutlineInputBorder()),
+                        ),
+                        TextFormField(
+                          controller: dateController,
+                          decoration: const InputDecoration(
+                              hintText: "Date", border: OutlineInputBorder()),
+                        ),
+                        ElevatedButton(
+                            onPressed: ()  async {
+                              Book book = Book(
+                                nameController.text,
+                                typeController.text,
+
+                                dateController.text,
+                                double.tryParse(priceController.text)??0,
+                              );
+                              await cloudstore.addNewBook(book).then((value) {
+                                nameController.clear();
+                                typeController.clear();
+                                dateController.clear();
+                                priceController.clear();
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text("Done")));
+                              });
+                            },
+                            child: const Text("Add"))
+                      ],
+                    ),
+                  ),
+                );
+              });
+
+
+
+
+        },
+        child: const Icon(Icons.add),
+
+      ),
       body: StreamBuilder(
         stream: cloudstore.ListenAllBookCollection(),
         builder: (context, snapshot) {
           //inprogress handle
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
+            return const Center(
               child: CircularProgressIndicator(),
             );
           }
@@ -72,8 +150,7 @@ class _HomeState extends State<Home> {
                     leading: Text(ListOfBooks[index].price.toString()),
                   );
                 });
-
-          }else{
+          } else {
             return const Center(
               child: Text("No data available"),
             );
